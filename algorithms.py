@@ -203,8 +203,35 @@ class Algorithm:
     def bellman_ford(self):
         pass
 
-    def hill_climbing(self):
-        pass
+    def hill_climbing(self, draw):
+        current = self.start
+        came_from = {}
+
+        while current != self.end:
+            neighbors = [neighbor for neighbor in current.neighbors if not neighbor.is_barrier()]  # Skip barriers
+            if not neighbors:
+                break
+            valid_neighbors = [neighbor for neighbor in neighbors if not neighbor.is_closed()]  # Skip closed spots
+            if not valid_neighbors:
+                break
+            best_neighbor = min(valid_neighbors, key=lambda neighbor: self.h(neighbor.get_pos(), self.end.get_pos()) ) 
+
+            if self.h(best_neighbor.get_pos(), self.end.get_pos()) >= self.h(current.get_pos(), self.end.get_pos()):
+                # If no improvement, stop the algorithm
+                break
+
+            came_from[best_neighbor] = current
+            best_neighbor.make_open()
+            current = best_neighbor
+            draw()
+
+            if current != self.start:
+                current.make_closed()
+
+        self.reconstruct_path(came_from, self.end, draw)
+        self.end.make_end()
+
+        return False
     
     def solve(self, algo):
         

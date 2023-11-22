@@ -6,7 +6,7 @@ from settings import *
 from spot import Spot
 from algorithms import Algorithm
 from button import Button
-
+import sys
 pygame.init()
 pygame.font.init()
 
@@ -130,8 +130,6 @@ class Main():
 			
 			if current in nonvisited:
 				continue
-
-			#current.reset()
 			neighbors = current.neighbors
    
 			for neighbor in neighbors:
@@ -140,7 +138,6 @@ class Main():
 					nonvisited.append(neighbor)
 					current.remove_wall(neighbor)
 					neighbor.visited = True
-					#pygame.display.update()
 		start.reset()
 		end.reset()
 
@@ -160,6 +157,25 @@ class Main():
 		self.draw_grid(win, rows, width)
 		pygame.display.update()
 
+	def run_algo(self, algos, algo, grid, width):
+		match algo:
+			case 'bfs':
+				algos.bfs(lambda: self.draw(self.screen, grid, ROWS, width))
+			case 'dfs':
+				algos.dfs(lambda: self.draw(self.screen, grid, ROWS, width))
+			case 'greedy':
+				algos.greedy(lambda: self.draw(self.screen, grid, ROWS, width))
+			case 'astar':
+				algos.a_star(lambda: self.draw(self.screen, grid, ROWS, width))
+			case 'hillclimbing':
+				algos.hill_climbing(lambda: self.draw(self.screen, grid, ROWS, width))
+			case 'dijkstra':
+				algos.dijkstra(lambda: self.draw(self.screen, grid, ROWS, width))
+			case 'bellman':
+				algos.bellman_ford(lambda: self.draw(self.screen, grid, ROWS, width))
+			case _:
+				algos.a_star(lambda: self.draw(self.screen, grid, ROWS, width))
+    
 	# main game loop
 	def main(self, width):
 		clock = Clock()
@@ -171,16 +187,39 @@ class Main():
 		start = None
 		end = None
 
+		select_algo = False
+		algo = ''
 		start_button = Button(775, 100, pygame.image.load('img/button_start.png').convert_alpha(), 0.7)
-		select_button = Button(775, 200, pygame.image.load('img/button_select.png').convert_alpha(), 0.7)
-		reset_button = Button(775, 300, pygame.image.load('img/button_select.png').convert_alpha(), 0.7)
-		clear_button = Button(775, 400, pygame.image.load('img/button_select.png').convert_alpha(), 0.7)
+		algorithm_button = Button(775, 200, pygame.image.load('img/button_algorithm.png').convert_alpha(), 0.7)
+		reset_button = Button(775, 300, pygame.image.load('img/button_reset.png').convert_alpha(), 0.7)
+		clear_button = Button(775, 400, pygame.image.load('img/button_clear.png').convert_alpha(), 0.7)
+  
+		bfs_button = Button(775, 50, pygame.image.load('img/button_bfs.png').convert_alpha(), 0.7)
+		dfs_button = Button(775, 120, pygame.image.load('img/button_dfs.png').convert_alpha(), 0.7)
+		astar_button = Button(775, 190, pygame.image.load('img/button_a.png').convert_alpha(), 0.7)
+		greedy_button = Button(775, 260, pygame.image.load('img/button_greedy.png').convert_alpha(), 0.7)
+		hill_climbing_button = Button(775, 330, pygame.image.load('img/button_hill-climbing.png').convert_alpha(), 0.7)
+		dijkstra_button = Button(775, 400, pygame.image.load('img/button_dijkstra.png').convert_alpha(), 0.7)
+		bellman_ford_button = Button(775, 470, pygame.image.load('img/button_bellman-ford.png').convert_alpha(), 0.7)
+		return_button = Button(775, 540, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
+  
 		while self.running:
-			self.screen.fill(LIGHTBLUE)	
-			start_button.draw(self.screen)
-			select_button.draw(self.screen)
-			reset_button.draw(self.screen)
-			clear_button.draw(self.screen)
+			self.screen.fill(LIGHTBLUE)
+			if not select_algo:
+				start_button.draw(self.screen)
+				algorithm_button.draw(self.screen)
+				reset_button.draw(self.screen)
+				clear_button.draw(self.screen)
+			else:
+				bfs_button.draw(self.screen)
+				dfs_button.draw(self.screen)
+				astar_button.draw(self.screen)
+				greedy_button.draw(self.screen)
+				hill_climbing_button.draw(self.screen)
+				dijkstra_button.draw(self.screen)
+				bellman_ford_button.draw(self.screen)
+				return_button.draw(self.screen)
+    
 			self.draw(self.screen, grid, ROWS, width)
 			
 			for event in pygame.event.get():
@@ -221,46 +260,45 @@ class Main():
 							for spot in row:
 								spot.update_neighbors(grid)
 						algos = Algorithm( grid, start, end)
-						#algos.dfs(lambda: self.draw(self.screen, grid, ROWS, width))
-						#algos.bfs(lambda: self.draw(self.screen, grid, ROWS, width))
-						#algos.greedy(lambda: self.draw(self.screen, grid, ROWS, width))
-						#algos.a_star(lambda: self.draw(self.screen, grid, ROWS, width))
-						algos.ucs(lambda: self.draw(self.screen, grid, ROWS, width))
-					if select_button.rect.collidepoint(mouse_pos):
-						print("select btn clicked")
+						self.run_algo(algos, algo, grid, width)
+						continue
+      
+					if algorithm_button.rect.collidepoint(mouse_pos):
+						algorithm_button.clicked = True
+						select_algo = True
+						continue
 
 					if reset_button.rect.collidepoint(mouse_pos):
 						start = None
 						end = None
 						grid = self.make_grid(ROWS, width)
+      
 					if clear_button.rect.collidepoint(mouse_pos):
 						self.reset_maze(screen, grid, ROWS, width, start, end)
-   
-				if event.type == pygame.KEYDOWN:
-					if event.key == pygame.K_SPACE and start and end:
-						for row in grid:
-							for spot in row:
-								spot.update_neighbors(grid)
-						algos = Algorithm( grid, start, end)
-						algos.dfs(lambda: self.draw(self.screen, grid, ROWS, width))
-						#algos.bfs(lambda: self.draw(self.screen, grid, ROWS, width))
-						#algos.greedy(lambda: self.draw(self.screen, grid, ROWS, width))
-						#algos.a_star(lambda: self.draw(self.screen, grid, ROWS, width))
-						#algos.ucs(lambda: self.draw(self.screen, grid, ROWS, width))
       
+					if return_button.rect.collidepoint(mouse_pos):
+						select_algo = False
 
+					if select_algo:
+						if bfs_button.rect.collidepoint(mouse_pos):					algo = 'bfs'
+						elif dfs_button.rect.collidepoint(mouse_pos):				algo = 'dfs'
+						elif astar_button.rect.collidepoint(mouse_pos):				algo = 'astar'
+						elif greedy_button.rect.collidepoint(mouse_pos):			algo = 'greedy'
+						elif hill_climbing_button.rect.collidepoint(mouse_pos):		algo = 'hillclimbing'
+						elif dijkstra_button.rect.collidepoint(mouse_pos):			algo = 'dijkstra'
+						elif bellman_ford_button.rect.collidepoint(mouse_pos):		algo = 'bellman'
+						select_algo = False
+						continue
+     
+				if event.type == pygame.KEYDOWN:
 					if event.key == pygame.K_v:
 						self.generate_maze(grid)
 								
-						
 					if event.key == pygame.K_c:
 						start = None
 						end = None
 						grid = self.make_grid(ROWS, width)
 
-			
-
-			#self.dropdown.draw()
 			pygame.display.update()
 			self.FPS.tick(60)
 
@@ -270,7 +308,7 @@ if __name__ == "__main__":
 	screen = (window_size[0] + 150, window_size[1])
 	tile_size = TILE_SIZE
 	screen = pygame.display.set_mode(screen)
-	pygame.display.set_caption("Maze")
+	pygame.display.set_caption("Maze game")
 
 	game = Main(screen)
 	game.main(window_size[0] - 30)
