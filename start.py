@@ -1,6 +1,8 @@
 import pygame
 import sys
 from subprocess import Popen
+from button import Button
+from settings import *
 # Khởi tạo Pygame
 pygame.init()
 
@@ -21,47 +23,30 @@ black = (0, 0, 0)
 font = pygame.font.Font(None, 36)
 
 # Tạo nút button
-button_width, button_height = 280, 50
-button_margin = 20
 size=window_size[0]
-play_by_move_button = pygame.Rect((size - button_width) // 2, 200, button_width, button_height)
-play_algorithm_button = pygame.Rect((size - button_width) // 2, 270, button_width, button_height)
-exit_button = pygame.Rect((size - button_width) // 2, 340, button_width, button_height)
+
+start_img = pygame.image.load('img/start_btn.png').convert_alpha()
+exit_img = pygame.image.load('img/exit_btn.png').convert_alpha()
 
 
+start_button = Button(200, 350, start_img, 0.5)
+exit_button = Button(450, 350, exit_img, 0.5)
+run = False
 # Chạy game loop
 while True:
+    screen.fill(WHITE)
+    screen.blit(background, (0, 0))
+    start_button.draw(screen)
+    if start_button.clicked and not run:
+        Popen(["python", "solution_by_algorithm.py"])
+        run = True
+    if exit_button.draw(screen):
+        pygame.quit()
+        sys.exit()
+    
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = event.pos
-            if play_by_move_button.collidepoint(mouse_pos):
-                print("Play by Move Key button clicked")
-                # Thực hiện hành động khi nút được nhấn
-                Popen(["python", "solution_by_player.py"])
-            elif play_algorithm_button.collidepoint(mouse_pos):
-                print("Play with Algorithm button clicked")
-                # Thực hiện hành động khi nút được nhấn
-                Popen(["python", "solution_by_algorithm.py"])
-            elif exit_button.collidepoint(mouse_pos):
-                pygame.quit()
-                sys.exit()
-
-    # Vẽ hình nền và nút button
-    screen.blit(background, (0, 0))
-
-    pygame.draw.rect(screen, black, play_by_move_button)
-    pygame.draw.rect(screen, black, play_algorithm_button)
-    pygame.draw.rect(screen, black, exit_button)
-
-    play_by_move_text = font.render("Play by Move Key", True, white)
-    play_algorithm_text = font.render("Play with Algorithm", True, white)
-    exit_text = font.render("Exit", True, white)
-
-    screen.blit(play_by_move_text, (play_by_move_button.x + 20, play_by_move_button.y + 15))
-    screen.blit(play_algorithm_text, (play_algorithm_button.x + 20, play_algorithm_button.y + 15))
-    screen.blit(exit_text, (exit_button.x + 20, exit_button.y + 15))
-
+        
     pygame.display.flip()

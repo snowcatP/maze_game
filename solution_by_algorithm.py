@@ -5,6 +5,8 @@ from dropdown import Dropdown
 from settings import *
 from spot import Spot
 from algorithms import Algorithm
+from button import Button
+
 pygame.init()
 pygame.font.init()
 
@@ -12,8 +14,9 @@ pygame.font.init()
 class Main():
 	def __init__(self, screen):
 		self.screen = screen
-		self.font = pygame.font.SysFont("impact", 30)
-		self.message_color = pygame.Color("cyan")
+		self.font = pygame.font.SysFont("arialblack", 30)
+		#self.message_color = pygame.Color("cyan")
+		self.message_color = WHITE
 		self.running = True
 		self.game_over = False
 		self.FPS = pygame.time.Clock()
@@ -76,9 +79,6 @@ class Main():
 
 	# draws all configs; maze, player, instructions, and time
 	def _draw(self, game, clock, start_button):
-		# draw maze
-		#[cell.draw(self.screen, tile) for cell in maze.grid_cells]
-  
 		self.instructions()
 		if self.game_over:
 			clock.stop_timer()
@@ -144,6 +144,22 @@ class Main():
 		start.reset()
 		end.reset()
 
+	def draw_text(self, screen, text, font, text_col, x, y):
+		img = font.render(text, True, text_col)
+		screen.blit(img, (x, y))
+
+	def reset_maze(self, win, grid, rows, width, start, end):
+		for row in grid:
+			for spot in row:
+				if spot.is_closed() or spot.is_open() or spot.is_end:
+					spot.reset()
+				if spot == start:
+					spot.make_start()
+				if spot == end:
+					spot.make_end()
+		self.draw_grid(win, rows, width)
+		pygame.display.update()
+
 	# main game loop
 	def main(self, width):
 		clock = Clock()
@@ -155,22 +171,17 @@ class Main():
 		start = None
 		end = None
 
+		start_button = Button(775, 100, pygame.image.load('img/button_start.png').convert_alpha(), 0.7)
+		select_button = Button(775, 200, pygame.image.load('img/button_select.png').convert_alpha(), 0.7)
+		reset_button = Button(775, 300, pygame.image.load('img/button_select.png').convert_alpha(), 0.7)
+		clear_button = Button(775, 400, pygame.image.load('img/button_select.png').convert_alpha(), 0.7)
 		while self.running:
-			self.screen.fill(WHITE)	
+			self.screen.fill(LIGHTBLUE)	
+			start_button.draw(self.screen)
+			select_button.draw(self.screen)
+			reset_button.draw(self.screen)
+			clear_button.draw(self.screen)
 			self.draw(self.screen, grid, ROWS, width)
-			
-			#Start button
-			start_button = pygame.Rect(785, 80, 150, 50)
-			pygame.draw.rect(self.screen, COLOR_INACTIVE, start_button)
-			start_text = self.font.render("Start", True, (0, 0, 0))
-			self.screen.blit(start_text, (start_button.x, start_button.y + 5))
-
-			#Set position button
-			set_pos = pygame.Rect(785, 250, 150, 50)
-			pygame.draw.rect(self.screen, COLOR_INACTIVE, set_pos)
-			set_pos_text = self.font.render("Set position", 1, (0, 0, 0))
-			self.screen.blit(set_pos_text, (set_pos.x, set_pos.y + 5))
-
 			
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
@@ -205,24 +216,7 @@ class Main():
       
 				if event.type == pygame.MOUSEBUTTONDOWN:
 					mouse_pos = event.pos
-					if not self.is_click_in_maze(mouse_pos, ROWS, window_size[0]):
-						if start_button.collidepoint(mouse_pos):
-							print("Start button clicked")
-							self.game_over = False
-							self.clock_running = True
-							clock.start_timer()
-
-						if set_pos.collidepoint(mouse_pos):
-							if self.set_position_mode:
-								self.set_position_mode = False
-							else:
-								self.set_position_mode = True
-						if self.set_position_mode:
-								print('set pos mode')
-   
-   
-				if event.type == pygame.KEYDOWN:
-					if event.key == pygame.K_SPACE and start and end:
+					if start_button.rect.collidepoint(mouse_pos) and start and end:
 						for row in grid:
 							for spot in row:
 								spot.update_neighbors(grid)
@@ -230,10 +224,31 @@ class Main():
 						#algos.dfs(lambda: self.draw(self.screen, grid, ROWS, width))
 						#algos.bfs(lambda: self.draw(self.screen, grid, ROWS, width))
 						#algos.greedy(lambda: self.draw(self.screen, grid, ROWS, width))
-
 						#algos.a_star(lambda: self.draw(self.screen, grid, ROWS, width))
+						algos.ucs(lambda: self.draw(self.screen, grid, ROWS, width))
+					if select_button.rect.collidepoint(mouse_pos):
+						print("select btn clicked")
 
+					if reset_button.rect.collidepoint(mouse_pos):
+						start = None
+						end = None
+						grid = self.make_grid(ROWS, width)
+					if clear_button.rect.collidepoint(mouse_pos):
+						self.reset_maze(screen, grid, ROWS, width, start, end)
+   
+				if event.type == pygame.KEYDOWN:
+					if event.key == pygame.K_SPACE and start and end:
+						for row in grid:
+							for spot in row:
+								spot.update_neighbors(grid)
+						algos = Algorithm( grid, start, end)
+						algos.dfs(lambda: self.draw(self.screen, grid, ROWS, width))
+						#algos.bfs(lambda: self.draw(self.screen, grid, ROWS, width))
+						#algos.greedy(lambda: self.draw(self.screen, grid, ROWS, width))
+						#algos.a_star(lambda: self.draw(self.screen, grid, ROWS, width))
+						#algos.ucs(lambda: self.draw(self.screen, grid, ROWS, width))
       
+
 					if event.key == pygame.K_v:
 						self.generate_maze(grid)
 								
@@ -245,12 +260,7 @@ class Main():
 
 			
 
-			selected_option = self.dropdown.update(pygame.event.get())
-			if selected_option >= 0:
-				self.dropdown.main = self.dropdown.options[selected_option]
-
-			self.dropdown.draw()
-			self._draw(game, clock, start_button)
+			#self.dropdown.draw()
 			pygame.display.update()
 			self.FPS.tick(60)
 

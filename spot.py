@@ -16,7 +16,11 @@ class Spot:
 		self.left_wall = True
 		self.right_wall = True
 		self.visited = False
-
+		self.cost = 0
+  
+	def get_cost(self):
+		return self.cost
+  
 	def is_visited(self):
 		return self.visited == True
 

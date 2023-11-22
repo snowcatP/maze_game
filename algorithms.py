@@ -133,8 +133,37 @@ class Algorithm:
 
         return False
 
-    def ucs(self):
-        pass
+    def ucs(self, draw):
+        open_set = PriorityQueue()
+        open_set.put((0, self.start))
+        came_from = {}
+        cost_path = {self.start: 0}
+        
+        while open_set:
+            current_cost, current = open_set.get()
+            
+            if current == self.end:
+                self.reconstruct_path(came_from, self.end, draw)
+                self.end.make_end()
+                return True
+            
+            
+            for neighbor in current.neighbors:
+                new_cost = current_cost + cost_path[current]
+                if neighbor not in cost_path or new_cost < cost_path[neighbor]:
+                    cost_path[neighbor] = new_cost
+                    open_set.put((new_cost, neighbor))
+                    came_from[neighbor] = current
+                    
+                    if neighbor != self.end:
+                        neighbor.make_open()
+            
+            draw()
+            
+            if current != self.end:
+                current.make_closed()
+                    
+        return False
 
     def greedy(self, draw):
         open_set = PriorityQueue()
