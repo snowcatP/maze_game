@@ -20,7 +20,7 @@ class Algorithm:
             current.make_path()
             draw()
     
-    def dfs(self, draw):
+    def dfs(self, draw, clock):
         open_set = [self.start]
         came_from = {}
         close = set()
@@ -39,7 +39,7 @@ class Algorithm:
             if current not in close:
                 close.add(current)
                 
-                #random.shuffle(current.neighbors)
+                random.shuffle(current.neighbors)
                 for neighbor in current.neighbors:
                     if neighbor not in close:
                         open_set.append(neighbor)
@@ -47,16 +47,16 @@ class Algorithm:
                         neighbor.make_open()
                     
             draw()
-            
+            clock.update_timer()
             if current != self.start:
                 current.make_closed()
-                
+        
         return False
                     
             
         
 
-    def bfs(self, draw):
+    def bfs(self, draw, clock):
         open_set = Queue()
         open_set.put(self.start)
         came_from = {}
@@ -84,11 +84,11 @@ class Algorithm:
                         neighbor.make_open()
                     
             draw()
-            
+            clock.update_timer()
             if current != self.start:
                 current.make_closed()
 
-    def a_star(self, draw):
+    def a_star(self, draw, clock):
         count = 0
         open_set = PriorityQueue()
         open_set.put((0, count, self.start))
@@ -127,13 +127,13 @@ class Algorithm:
                         neighbor.make_open()
 
             draw()
-
+            clock.update_timer()
             if current != self.start:
                 current.make_closed()
 
         return False
 
-    def ucs(self, draw):
+    def ucs(self, draw, clock):
         open_set = PriorityQueue()
         open_set.put((0, self.start))
         came_from = {}
@@ -159,13 +159,13 @@ class Algorithm:
                         neighbor.make_open()
             
             draw()
-            
+            clock.update_timer()
             if current != self.end:
                 current.make_closed()
                     
         return False
 
-    def greedy(self, draw):
+    def greedy(self, draw, clock):
         open_set = PriorityQueue()
         open_set.put((self.h(self.start.get_pos(), self.end.get_pos()), self.start))
         closed_set = set()
@@ -188,14 +188,15 @@ class Algorithm:
                     neighbor.make_open()
                     
             draw()
+            clock.update_timer()
             if current != self.start:
                 current.make_closed()
                 
         return False
         
 
-    def dijkstra(self):
-        pass
+    def dijkstra(self, draw, clock):
+        self.ucs(draw, clock)
 
     def floyd_warshall(self):
         pass
@@ -203,34 +204,7 @@ class Algorithm:
     def bellman_ford(self):
         pass
 
-    def hill_climbing(self, draw):
-        current = self.start
-        came_from = {}
-
-        while current != self.end:
-            neighbors = [neighbor for neighbor in current.neighbors if not neighbor.is_barrier()]  # Skip barriers
-            if not neighbors:
-                break
-            valid_neighbors = [neighbor for neighbor in neighbors if not neighbor.is_closed()]  # Skip closed spots
-            if not valid_neighbors:
-                break
-            best_neighbor = min(valid_neighbors, key=lambda neighbor: self.h(neighbor.get_pos(), self.end.get_pos()) ) 
-
-            if self.h(best_neighbor.get_pos(), self.end.get_pos()) >= self.h(current.get_pos(), self.end.get_pos()):
-                # If no improvement, stop the algorithm
-                break
-
-            came_from[best_neighbor] = current
-            best_neighbor.make_open()
-            current = best_neighbor
-            draw()
-
-            if current != self.start:
-                current.make_closed()
-
-        self.reconstruct_path(came_from, self.end, draw)
-        self.end.make_end()
-
+    def hill_climbing(self, draw):  
         return False
     
     def solve(self, algo):
