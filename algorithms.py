@@ -15,12 +15,15 @@ class Algorithm:
 
 
     def reconstruct_path(self, came_from, current, draw):
+        cost=0
         while current in came_from:
             current = came_from[current]
             current.make_path()
             draw()
+            cost+=1
+        return cost
     
-    def dfs(self, draw, clock):
+    def dfs(self, draw, clock,visited, candidate, cost):
         open_set = [self.start]
         came_from = {}
         close = set()
@@ -32,9 +35,11 @@ class Algorithm:
             current = open_set.pop()
             #close.add(current)
             if current == self.end:
-                self.reconstruct_path(came_from, self.end, draw)
+                cost = self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
-                return True
+                visited = len(close)
+                candidate = len(open_set)
+                return visited,candidate, cost
             
             if current not in close:
                 close.add(current)
@@ -56,7 +61,7 @@ class Algorithm:
             
         
 
-    def bfs(self, draw, clock):
+    def bfs(self, draw, clock,visited, candidate, cost):
         open_set = Queue()
         open_set.put(self.start)
         came_from = {}
@@ -69,9 +74,11 @@ class Algorithm:
             current = open_set.get()
             #close.add(current)
             if current == self.end:
-                self.reconstruct_path(came_from, self.end, draw)
+                cost = self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
-                return True
+                visited = len(close)
+                candidate = open_set.qsize()
+                return visited,candidate,cost
             
             if current not in close:
                 close.add(current)
@@ -88,7 +95,7 @@ class Algorithm:
             if current != self.start:
                 current.make_closed()
 
-    def a_star(self, draw, clock):
+    def a_star(self, draw, clock,visited, candidate, cost):
         count = 0
         open_set = PriorityQueue()
         open_set.put((0, count, self.start))
@@ -106,12 +113,14 @@ class Algorithm:
                     pygame.quit()
 
             current = open_set.get()[2]
+            visited+=1
             open_set_hash.remove(current)
-
+            
             if current == self.end:
-                self.reconstruct_path(came_from, self.end, draw)
+                cost=self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
-                return True
+                
+                return visited,candidate , cost   
 
             for neighbor in current.neighbors:
                 temp_g_score = g_score[current] + 1
@@ -124,6 +133,7 @@ class Algorithm:
                         count += 1
                         open_set.put((f_score[neighbor], count, neighbor))
                         open_set_hash.add(neighbor)
+                        candidate+=1
                         neighbor.make_open()
 
             draw()
@@ -133,7 +143,7 @@ class Algorithm:
 
         return False
 
-    def ucs(self, draw, clock):
+    def ucs(self, draw, clock,visited, candidate, cost):
         open_set = PriorityQueue()
         open_set.put((0, self.start))
         came_from = {}
@@ -143,9 +153,11 @@ class Algorithm:
             current_cost, current = open_set.get()
             
             if current == self.end:
-                self.reconstruct_path(came_from, self.end, draw)
+                cost=self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
-                return True
+                visited = open_set.qsize()
+                candidate = len(cost_path)
+                return visited, candidate, cost
             
             
             for neighbor in current.neighbors:
@@ -165,7 +177,7 @@ class Algorithm:
                     
         return False
 
-    def greedy(self, draw, clock):
+    def greedy(self, draw, clock, visited, candidate, cost):
         open_set = PriorityQueue()
         open_set.put((self.h(self.start.get_pos(), self.end.get_pos()), self.start))
         closed_set = set()
@@ -174,9 +186,11 @@ class Algorithm:
         while open_set:
             current = open_set.get()[1]
             if current == self.end:
-                self.reconstruct_path(came_from, self.end, draw)
+                cost = self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
-                return True
+                visited = open_set.qsize()
+                candidate = len(closed_set)
+                return visited,candidate,cost
             
             closed_set.add(current)
             
@@ -195,8 +209,8 @@ class Algorithm:
         return False
         
 
-    def dijkstra(self, draw, clock):
-        self.ucs(draw, clock)
+    def dijkstra(self, draw, clock, visited, candidate, cost):
+        return self.ucs(draw, clock, visited, candidate, cost)
 
     def floyd_warshall(self):
         pass

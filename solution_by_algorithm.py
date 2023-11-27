@@ -131,13 +131,26 @@ class Main():
 		return row_start, col_start
 
 	def run_algo(self, algos, algo, grid, width, clock, rows_maze):
+		visited, candidate, cost = 0,0,0
 		match algo:
-			case 'bfs':				algos.bfs(lambda: self.draw(self.screen, grid, rows_maze, width), clock)
-			case 'dfs':				algos.dfs(lambda: self.draw(self.screen, grid, rows_maze, width), clock)
-			case 'greedy':			algos.greedy(lambda: self.draw(self.screen, grid, rows_maze, width), clock)
-			case 'astar':			algos.a_star(lambda: self.draw(self.screen, grid, rows_maze, width), clock)
-			case 'dijkstra':		algos.dijkstra(lambda: self.draw(self.screen, grid, rows_maze, width), clock)
-			case _:					algos.a_star(lambda: self.draw(self.screen, grid, rows_maze, width), clock)
+			case 'bfs':				
+				visited, candidate, cost = algos.bfs(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
+			case 'dfs':				
+				visited, candidate, cost = algos.dfs(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
+			case 'greedy':			
+				visited, candidate, cost = algos.greedy(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
+			case 'astar':			
+				visited, candidate, cost = algos.a_star(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
+			case 'dijkstra':		
+				visited, candidate, cost = algos.dijkstra(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
+			case _:					
+				visited, candidate, cost = algos.a_star(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
     
 	# main game loop
 	def main(self, width):
@@ -177,6 +190,13 @@ class Main():
   
 		row_start, col_start = None, None
 		row_end, col_end = None, None
+  
+		font = pygame.font.SysFont("arialblack", 18)
+		visited, candidate, cost = 0,0,0
+		text_visited = font.render(f"Visited: {visited}", True, (0, 0, 0))
+		text_candidate= font.render(f"Candidate: {candidate}", True, (0, 0, 0))
+		text_cost = font.render(f"Cost: {cost}",True,(0,0,0))
+  
 		while self.running:
 			self.screen.fill(LIGHTBLUE)
 			clock.draw( 775, 30)
@@ -188,7 +208,9 @@ class Main():
 				reset_button.draw(self.screen)
 				clear_button.draw(self.screen)
 				generate_maze_button.draw(self.screen)
-    
+				screen.blit(text_visited, (775, 520))
+				screen.blit(text_candidate, (775, 590))
+				screen.blit(text_cost, (775, 660))
 			elif select_mode:
 				easy_mode_button.draw(self.screen)
 				medium_mode_button.draw(self.screen)
@@ -251,8 +273,13 @@ class Main():
 							algos = Algorithm( grid, start, end)
 							clock.start_timer()
        
-							if self.run_algo(algos, algo, grid, width, clock, rows_maze):
-								clock.stop_timer()
+							visited, candidate,cost = self.run_algo(algos, algo, grid, width, clock, rows_maze)
+							text_visited = font.render(f"Visited: {visited}", True, (0, 0, 0))
+							text_candidate= font.render(f"Candidate: {candidate}", True, (0, 0, 0))
+							text_cost = font.render(f"Cost: {cost}",True,(0,0,0))
+							clock.stop_timer()
+							pygame.display.flip()
+							pygame.display.update()
 							choose_algo = False
 							continue
 							
