@@ -11,10 +11,6 @@ class Spot:
 		self.neighbors = []
 		self.width = width
 		self.total_rows = total_rows
-		self.top_wall = True
-		self.bottom_wall = True
-		self.left_wall = True
-		self.right_wall = True
 		self.visited = False
 		self.cost = 0
   

@@ -67,20 +67,6 @@ class Main():
 		# Check if the click is within the maze boundaries
 		return 0 <= x < width - 30 and 0 <= y < width - 30
 
-	def remove_wall(self, grid, current, next_cell):
-		x, y = current.get_pos()
-		next_x, next_y = next_cell.get_pos()
-
-		if x == next_x and y < next_y:  # Move down
-			wall = grid[x][y + 1]
-		elif x == next_x and y > next_y:  # Move up
-			wall = grid[x][y - 1]
-		elif x < next_x and y == next_y:  # Move right
-			wall = grid[x + 1][y]
-		elif x > next_x and y == next_y:  # Move left
-			wall = grid[x - 1][y]
-		wall.reset()
-
 	def generate_maze(self, grid, rows_maze):
 		start = grid[0][0]
 		start.make_start()
@@ -128,6 +114,22 @@ class Main():
 		self.draw_grid(win, rows, width)
 		pygame.display.update()
 
+	def moving(self, direction, start, end, row_start, col_start, grid, rows_maze):
+		if direction == "LEFT" and row_start > 0:
+			new_row, new_col = row_start - 1, col_start
+		elif direction == "RIGHT" and row_start < rows_maze - 1:
+			new_row, new_col = row_start + 1, col_start
+		elif direction == "UP" and col_start > 0:
+			new_row, new_col = row_start, col_start - 1
+		elif direction == "DOWN" and col_start < rows_maze - 1:
+			new_row, new_col = row_start, col_start + 1
+		else:
+			return
+		new_spot = grid[new_row][new_col]
+		if not new_spot.is_barrier():
+			return new_row, new_col
+		return row_start, col_start
+
 	def run_algo(self, algos, algo, grid, width, clock, rows_maze):
 		match algo:
 			case 'bfs':				algos.bfs(lambda: self.draw(self.screen, grid, rows_maze, width), clock)
@@ -173,6 +175,8 @@ class Main():
 		dijkstra_button = Button(775, 310, pygame.image.load('img/button_dijkstra.png').convert_alpha(), 0.7)
 		return_button = Button(775, 380, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
   
+		row_start, col_start = None, None
+		row_end, col_end = None, None
 		while self.running:
 			self.screen.fill(LIGHTBLUE)
 			clock.draw( 775, 30)
@@ -212,10 +216,12 @@ class Main():
 						row, col = self.get_clicked_pos(pos, rows_maze, width)
 						spot = grid[row][col]
 						if not start and spot != end:
+							row_start, col_start = row, col
 							start = spot
 							start.make_start()
 
 						elif not end and spot != start:
+							row_end, col_end = row, col
 							end = spot
 							end.make_end()
 
@@ -325,6 +331,52 @@ class Main():
 						start = None
 						end = None
 						grid = self.make_grid(rows_maze, width)
+					
+					if start and end:
+						if event.key == pygame.K_UP:
+							point = grid[row_start][col_start]
+							point.reset()
+							newrow, newcol = self.moving("UP", start, end, row_start, col_start, grid, rows_maze)
+							if newrow == row_end and newcol == col_end:
+								end = grid[newrow][newcol]
+								end.reset()
+								end = None
+							row_start, col_start = newrow, newcol
+							start = grid[newrow][newcol]
+							start.make_start()
+						elif event.key == pygame.K_DOWN:
+							point = grid[row_start][col_start]
+							point.reset()
+							newrow, newcol = self.moving("DOWN", start, end, row_start, col_start, grid, rows_maze)
+							if newrow == row_end and newcol == col_end:
+								end = grid[newrow][newcol]
+								end.reset()
+								end = None
+							row_start, col_start = newrow, newcol
+							start = grid[newrow][newcol]
+							start.make_start()
+						elif event.key == pygame.K_RIGHT:
+							point = grid[row_start][col_start]
+							point.reset()
+							newrow, newcol = self.moving("RIGHT", start, end, row_start, col_start, grid, rows_maze)
+							if newrow == row_end and newcol == col_end:
+								end = grid[newrow][newcol]
+								end.reset()
+								end = None
+							row_start, col_start = newrow, newcol
+							start = grid[newrow][newcol]
+							start.make_start()
+						elif event.key == pygame.K_LEFT:
+							point = grid[row_start][col_start]
+							point.reset()
+							newrow, newcol = self.moving("LEFT", start, end, row_start, col_start, grid, rows_maze)
+							if newrow == row_end and newcol == col_end:
+								end = grid[newrow][newcol]
+								end.reset()
+								end = None
+							row_start, col_start = newrow, newcol
+							start = grid[newrow][newcol]
+							start.make_start()
 
 			pygame.display.update()
 			self.FPS.tick(60)
