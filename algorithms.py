@@ -208,6 +208,53 @@ class Algorithm:
                 
         return False
         
+    def dfs_with_depth_limit(self, draw, max_depth, visited, candidate, cost):
+            open_set = [self.start]
+            came_from = {}
+            close = set()
+            depth = {self.start: 0}
+            while open_set:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                
+                current = open_set.pop()
+
+                if current == self.end:
+                    cost = self.reconstruct_path(came_from, self.end, draw)
+                    self.end.make_end()
+                    visited = len(close)
+                    candidate = len(open_set)
+                    return visited,candidate, cost
+                
+                if depth[current] >= max_depth:
+                    continue
+                
+                close.add(current)
+                
+                neighbors = [neighbor for neighbor in current.neighbors if neighbor not in close]
+                
+                for neighbor in neighbors:
+                    if neighbor not in close:
+                        open_set.append(neighbor)
+                        came_from[neighbor] = current
+                        depth[neighbor] = depth[current] + 1
+                        neighbor.make_open()
+
+                draw()
+                if current != self.start:
+                    current.make_closed()
+            return False
+        
+    def iterative_deepening_search(self, draw, clock, visited, candidate, cost):
+            max_depth = 1
+            while True:
+                result = self.dfs_with_depth_limit(draw, max_depth, visited, candidate, cost)
+                clock.update_timer()
+                if result:
+                    visited,candidate, cost = result
+                    return visited,candidate, cost
+                max_depth += 1
 
     def dijkstra(self, draw, clock, visited, candidate, cost):
         return self.ucs(draw, clock, visited, candidate, cost)

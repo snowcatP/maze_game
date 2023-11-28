@@ -6,7 +6,7 @@ class Clock:
 	def __init__(self, screen):
 		self.start_time = None
 		self.elapsed_time = 0
-		self.font = pygame.font.SysFont('arial', 36)
+		self.font = pygame.font.SysFont("arial", 30)
 		self.message_color = pygame.Color(settings.BLACK)
 		self.running = False
 		self.screen = screen

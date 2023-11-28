@@ -14,7 +14,7 @@ pygame.font.init()
 class Main():
 	def __init__(self, screen):
 		self.screen = screen
-		self.font = pygame.font.SysFont("arialblack", 30)
+		self.font = pygame.font.SysFont("arialblack", 25)
 		self.message_color = WHITE
 		self.running = True
 		self.game_over = False
@@ -148,6 +148,9 @@ class Main():
 			case 'dijkstra':		
 				visited, candidate, cost = algos.dijkstra(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
+			case 'ids':		
+				visited, candidate, cost = algos.iterative_deepening_search(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
 			case _:					
 				visited, candidate, cost = algos.a_star(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
@@ -186,16 +189,18 @@ class Main():
 		astar_button = Button(775, 170, pygame.image.load('img/button_a.png').convert_alpha(), 0.7)
 		greedy_button = Button(775, 240, pygame.image.load('img/button_greedy.png').convert_alpha(), 0.7)
 		dijkstra_button = Button(775, 310, pygame.image.load('img/button_dijkstra.png').convert_alpha(), 0.7)
-		return_button = Button(775, 380, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
+		ids_button = Button(775, 380, pygame.image.load('img/button_ids.png').convert_alpha(), 0.7)
+		return_button = Button(775, 450, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
   
 		row_start, col_start = None, None
 		row_end, col_end = None, None
   
-		font = pygame.font.SysFont("arialblack", 18)
+		font = pygame.font.SysFont("arial", 25)
 		visited, candidate, cost = 0,0,0
 		text_visited = font.render(f"Visited: {visited}", True, (0, 0, 0))
 		text_candidate= font.render(f"Candidate: {candidate}", True, (0, 0, 0))
 		text_cost = font.render(f"Cost: {cost}",True,(0,0,0))
+		group = font.render("Group 3", True,(0,0,0))
   
 		while self.running:
 			self.screen.fill(LIGHTBLUE)
@@ -209,8 +214,9 @@ class Main():
 				clear_button.draw(self.screen)
 				generate_maze_button.draw(self.screen)
 				screen.blit(text_visited, (775, 520))
-				screen.blit(text_candidate, (775, 590))
-				screen.blit(text_cost, (775, 660))
+				screen.blit(text_candidate, (775, 570))
+				screen.blit(text_cost, (775, 620))
+				screen.blit(group, (775, 670))
 			elif select_mode:
 				easy_mode_button.draw(self.screen)
 				medium_mode_button.draw(self.screen)
@@ -224,6 +230,7 @@ class Main():
 				astar_button.draw(self.screen)
 				greedy_button.draw(self.screen)
 				dijkstra_button.draw(self.screen)
+				ids_button.draw(self.screen)
 				return_button.draw(self.screen)
     
 			self.draw(self.screen, grid, rows_maze, width)
@@ -278,8 +285,8 @@ class Main():
 							text_candidate= font.render(f"Candidate: {candidate}", True, (0, 0, 0))
 							text_cost = font.render(f"Cost: {cost}",True,(0,0,0))
 							clock.stop_timer()
-							pygame.display.flip()
-							pygame.display.update()
+							#pygame.display.flip()
+							#pygame.display.update()
 							choose_algo = False
 							continue
 							
@@ -336,6 +343,7 @@ class Main():
 						elif astar_button.rect.collidepoint(mouse_pos):				algo = 'astar'
 						elif greedy_button.rect.collidepoint(mouse_pos):			algo = 'greedy'
 						elif dijkstra_button.rect.collidepoint(mouse_pos):			algo = 'dijkstra'
+						elif ids_button.rect.collidepoint(mouse_pos):				algo = 'ids'
       
 						select_algo = False
 						algorithm_button.clicked = False
