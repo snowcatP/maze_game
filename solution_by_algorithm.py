@@ -148,6 +148,9 @@ class Main():
 			case 'dijkstra':		
 				visited, candidate, cost = algos.dijkstra(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
+			case 'ucs':		
+				visited, candidate, cost = algos.ucs(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
+				return visited,candidate, cost
 			case 'ids':		
 				visited, candidate, cost = algos.iterative_deepening_search(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
@@ -189,8 +192,9 @@ class Main():
 		astar_button = Button(775, 170, pygame.image.load('img/button_a.png').convert_alpha(), 0.7)
 		greedy_button = Button(775, 240, pygame.image.load('img/button_greedy.png').convert_alpha(), 0.7)
 		dijkstra_button = Button(775, 310, pygame.image.load('img/button_dijkstra.png').convert_alpha(), 0.7)
-		ids_button = Button(775, 380, pygame.image.load('img/button_ids.png').convert_alpha(), 0.7)
-		return_button = Button(775, 450, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
+		ucs_button = Button(775, 380, pygame.image.load('img/button_ucs.png').convert_alpha(), 0.7)
+		ids_button = Button(775, 450, pygame.image.load('img/button_ids.png').convert_alpha(), 0.7)
+		return_button = Button(775, 520, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
   
 		row_start, col_start = None, None
 		row_end, col_end = None, None
@@ -231,6 +235,7 @@ class Main():
 				greedy_button.draw(self.screen)
 				dijkstra_button.draw(self.screen)
 				ids_button.draw(self.screen)
+				ucs_button.draw(self.screen)
 				return_button.draw(self.screen)
     
 			self.draw(self.screen, grid, rows_maze, width)
@@ -285,8 +290,6 @@ class Main():
 							text_candidate= font.render(f"Candidate: {candidate}", True, (0, 0, 0))
 							text_cost = font.render(f"Cost: {cost}",True,(0,0,0))
 							clock.stop_timer()
-							#pygame.display.flip()
-							#pygame.display.update()
 							choose_algo = False
 							continue
 							
@@ -344,6 +347,7 @@ class Main():
 						elif greedy_button.rect.collidepoint(mouse_pos):			algo = 'greedy'
 						elif dijkstra_button.rect.collidepoint(mouse_pos):			algo = 'dijkstra'
 						elif ids_button.rect.collidepoint(mouse_pos):				algo = 'ids'
+						elif ucs_button.rect.collidepoint(mouse_pos):				algo = 'ucs'
       
 						select_algo = False
 						algorithm_button.clicked = False

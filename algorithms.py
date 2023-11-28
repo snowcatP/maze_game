@@ -57,9 +57,6 @@ class Algorithm:
                 current.make_closed()
         
         return False
-                    
-            
-        
 
     def bfs(self, draw, clock,visited, candidate, cost):
         open_set = Queue()
@@ -94,6 +91,7 @@ class Algorithm:
             clock.update_timer()
             if current != self.start:
                 current.make_closed()
+        return False
 
     def a_star(self, draw, clock,visited, candidate, cost):
         count = 0
@@ -143,38 +141,48 @@ class Algorithm:
 
         return False
 
-    def ucs(self, draw, clock,visited, candidate, cost):
+    def dijkstra(self, draw, clock,visited, candidate, cost):
+        count = 0
         open_set = PriorityQueue()
-        open_set.put((0, self.start))
+        open_set.put((0, count, self.start))
         came_from = {}
-        cost_path = {self.start: 0}
-        
-        while open_set:
-            current_cost, current = open_set.get()
+        g_score = {spot: float("inf") for row in self.grid for spot in row}
+        g_score[self.start] = 0
+
+        open_set_hash = {self.start}
+
+        while not open_set.empty():
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+
+            current = open_set.get()[2]
+            visited += 1
+            open_set_hash.remove(current)
             
             if current == self.end:
                 cost=self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
-                visited = open_set.qsize()
-                candidate = len(cost_path)
-                return visited, candidate, cost
-            
-            
+                return visited,candidate , cost   
+
             for neighbor in current.neighbors:
-                new_cost = current_cost + cost_path[current]
-                if neighbor not in cost_path or new_cost < cost_path[neighbor]:
-                    cost_path[neighbor] = new_cost
-                    open_set.put((new_cost, neighbor))
+                temp_g_score = g_score[current] + 1
+
+                if temp_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
-                    
-                    if neighbor != self.end:
+                    g_score[neighbor] = temp_g_score
+                    if neighbor not in open_set_hash:
+                        count += 1
+                        open_set.put((g_score[neighbor], count, neighbor))
+                        open_set_hash.add(neighbor)
+                        candidate+=1
                         neighbor.make_open()
-            
+
             draw()
             clock.update_timer()
-            if current != self.end:
+            if current != self.start:
                 current.make_closed()
-                    
+
         return False
 
     def greedy(self, draw, clock, visited, candidate, cost):
@@ -256,18 +264,39 @@ class Algorithm:
                     return visited,candidate, cost
                 max_depth += 1
 
-    def dijkstra(self, draw, clock, visited, candidate, cost):
-        return self.ucs(draw, clock, visited, candidate, cost)
+    def ucs(self, draw, clock, visited, candidate, cost):
+        open_set = PriorityQueue()
+        open_set.put((0, self.start))
+        came_from = {}
+        g_score = {spot: float("inf") for row in self.grid for spot in row}
+        g_score[self.start] = 0
 
-    def floyd_warshall(self):
-        pass
+        while not open_set.empty():
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
 
-    def bellman_ford(self):
-        pass
+            current = open_set.get()[1]
+            visited += 1
 
-    def hill_climbing(self, draw):  
+            if current == self.end:
+                cost = self.reconstruct_path(came_from, self.end, draw)
+                self.end.make_end()
+                return visited, candidate, cost
+
+            for neighbor in current.neighbors:
+                temp_g_score = g_score[current] + 1
+
+                if temp_g_score < g_score[neighbor]:
+                    came_from[neighbor] = current
+                    g_score[neighbor] = temp_g_score
+                    open_set.put((temp_g_score, neighbor))
+                    neighbor.make_open()
+
+            draw()
+            clock.update_timer()
+
+            if current != self.start:
+                current.make_closed()
+
         return False
-    
-    def solve(self, algo):
-        
-        pass
