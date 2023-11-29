@@ -43,14 +43,11 @@ class Algorithm:
             
             if current not in close:
                 close.add(current)
-                
-                random.shuffle(current.neighbors)
                 for neighbor in current.neighbors:
                     if neighbor not in close:
                         open_set.append(neighbor)
                         came_from[neighbor] = current
                         neighbor.make_open()
-                    
             draw()
             clock.update_timer()
             if current != self.start:
@@ -102,9 +99,7 @@ class Algorithm:
         g_score[self.start] = 0
         f_score = {spot: float("inf") for row in self.grid for spot in row}
         f_score[self.start] = self.h(self.start.get_pos(), self.end.get_pos())
-
         open_set_hash = {self.start}
-
         while not open_set.empty():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -117,12 +112,10 @@ class Algorithm:
             if current == self.end:
                 cost=self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
-                
                 return visited,candidate , cost   
 
             for neighbor in current.neighbors:
                 temp_g_score = g_score[current] + 1
-
                 if temp_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = temp_g_score
@@ -133,7 +126,6 @@ class Algorithm:
                         open_set_hash.add(neighbor)
                         candidate+=1
                         neighbor.make_open()
-
             draw()
             clock.update_timer()
             if current != self.start:

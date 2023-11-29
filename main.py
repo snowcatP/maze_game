@@ -210,11 +210,11 @@ class Main():
   
 		title = pygame.font.SysFont("calibri", 35).render("Final term project", True, PURPLE)
 		game = pygame.font.SysFont("calibri", 30).render("Maze game", True, PURPLE)
-		subject = pygame.font.SysFont("calibri", 24).render("Artificial intelligence course", True, (0, 0, 0))
-		group = pygame.font.SysFont("calibri", 24).render("Group 3", True, (0, 0, 0))
-		name1 = pygame.font.SysFont("calibri", 24).render("Vũ Xuân Hoàng", True, (0, 0, 0))
-		name2 = pygame.font.SysFont("calibri", 24).render("Nguyễn Hoàng Hảo", True, (0, 0, 0))
-		name3 = pygame.font.SysFont("calibri", 24).render("Bùi Ngọc Hiệp", True, (0, 0, 0))
+		subject = pygame.font.SysFont("calibri", 24).render("Subject: Artificial intelligence", True, (0, 0, 0))
+		group = pygame.font.SysFont("calibri", 24).render("Group 3", True, PURPLE)
+		name1 = pygame.font.SysFont("calibri", 24).render("Vũ Xuân Hoàng         21110770", True, (0, 0, 0))
+		name2 = pygame.font.SysFont("calibri", 24).render("Nguyễn Hoàng Hảo 21110768", True, (0, 0, 0))
+		name3 = pygame.font.SysFont("calibri", 24).render("Bùi Ngọc Hiệp           21110769", True, (0, 0, 0))
 		stars = pygame.font.SysFont("calibri", 24).render("        *************", True, (0, 0, 0))
 		guide = pygame.font.SysFont("calibri", 30).render("Guide", True, PURPLE)
 		click1 = pygame.font.SysFont("calibri", 24).render("- Use left click to make start", True, (0, 0, 0))
@@ -387,9 +387,8 @@ class Main():
 						elif astar_button.rect.collidepoint(mouse_pos):				algo = 'A*'
 						elif greedy_button.rect.collidepoint(mouse_pos):			algo = 'Greedy'
 						elif dijkstra_button.rect.collidepoint(mouse_pos):			algo = 'Dijkstra'
-						#elif ids_button.rect.collidepoint(mouse_pos):				algo = 'ids'
 						elif ucs_button.rect.collidepoint(mouse_pos):				algo = 'UCS'
-						text_algo = font.render(f"Algo: {algo}",True,(0,0,0))
+						text_algo = font.render(f"Algo: {algo}",True, PURPLE)
 						select_algo = False
 						algorithm_button.clicked = False
 						continue
