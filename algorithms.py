@@ -270,6 +270,7 @@ class Algorithm:
         came_from = {}
         g_score = {spot: float("inf") for row in self.grid for spot in row}
         g_score[self.start] = 0
+        closed = set()
 
         while not open_set.empty():
             for event in pygame.event.get():
@@ -278,20 +279,23 @@ class Algorithm:
 
             current = open_set.get()[1]
             visited += 1
-
+            
             if current == self.end:
                 cost = self.reconstruct_path(came_from, self.end, draw)
                 self.end.make_end()
+                candidate = len(closed)
                 return visited, candidate, cost
 
             for neighbor in current.neighbors:
                 temp_g_score = g_score[current] + 1
 
-                if temp_g_score < g_score[neighbor]:
-                    came_from[neighbor] = current
-                    g_score[neighbor] = temp_g_score
-                    open_set.put((temp_g_score, neighbor))
-                    neighbor.make_open()
+                if neighbor not in closed:
+                    closed.add(neighbor)
+                    if temp_g_score < g_score[neighbor]:
+                        came_from[neighbor] = current
+                        g_score[neighbor] = temp_g_score
+                        open_set.put((temp_g_score, neighbor))
+                        neighbor.make_open()
 
             draw()
             clock.update_timer()

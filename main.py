@@ -1,7 +1,6 @@
 import random
 import pygame
 from clock import Clock
-from dropdown import Dropdown
 from settings import *
 from spot import Spot
 from algorithms import Algorithm
@@ -133,22 +132,22 @@ class Main():
 	def run_algo(self, algos, algo, grid, width, clock, rows_maze):
 		visited, candidate, cost = 0,0,0
 		match algo:
-			case 'bfs':				
+			case 'BFS':				
 				visited, candidate, cost = algos.bfs(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
-			case 'dfs':				
+			case 'DFS':				
 				visited, candidate, cost = algos.dfs(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
-			case 'greedy':			
+			case 'Greedy':			
 				visited, candidate, cost = algos.greedy(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
-			case 'astar':			
+			case 'A*':			
 				visited, candidate, cost = algos.a_star(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
-			case 'dijkstra':		
+			case 'Dijkstra':		
 				visited, candidate, cost = algos.dijkstra(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
-			case 'ucs':		
+			case 'UCS':		
 				visited, candidate, cost = algos.ucs(lambda: self.draw(self.screen, grid, rows_maze, width), clock, visited, candidate, cost)
 				return visited,candidate, cost
 			case 'ids':		
@@ -171,56 +170,99 @@ class Main():
 		select_algo = False
 		choose_algo = False
 		select_mode = False
-		algo = ''
+		info_clicked = False
+		algo = 'A*'
+		main = True
 		mode = ''
+
+		start_button = Button(840, 100, pygame.image.load('img/button_start.png').convert_alpha(), 0.7)
+		generate_maze_button = Button(840, 170, pygame.image.load('img/button_generate.png').convert_alpha(), 0.7)
+		mode_button = Button(840, 240, pygame.image.load('img/button_mode.png').convert_alpha(), 0.7)
+		algorithm_button = Button(840, 310, pygame.image.load('img/button_algorithm.png').convert_alpha(), 0.7)
+		reset_button = Button(840, 380, pygame.image.load('img/button_reset.png').convert_alpha(), 0.7)
+		clear_button = Button(840, 450, pygame.image.load('img/button_clear.png').convert_alpha(), 0.7)
+		info_button = Button(840, 520, pygame.image.load('img/button_info.png').convert_alpha(), 0.7)
+	
+		easy_mode_button = Button(840, 30, pygame.image.load('img/button_easy.png').convert_alpha(), 0.7)
+		medium_mode_button = Button(840, 100, pygame.image.load('img/button_medium.png').convert_alpha(), 0.7)
+		hard_mode_button = Button(840, 170, pygame.image.load('img/button_hard.png').convert_alpha(), 0.7)
+		render_button = Button(840, 240, pygame.image.load('img/button_render.png').convert_alpha(), 0.7)
+		return_mode_button = Button(840, 310, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
   
-		start_button = Button(775, 100, pygame.image.load('img/button_start.png').convert_alpha(), 0.7)
-		generate_maze_button = Button(775, 170, pygame.image.load('img/button_generate.png').convert_alpha(), 0.7)
-		mode_button = Button(775, 240, pygame.image.load('img/button_mode.png').convert_alpha(), 0.7)
-		algorithm_button = Button(775, 310, pygame.image.load('img/button_algorithm.png').convert_alpha(), 0.7)
-		reset_button = Button(775, 380, pygame.image.load('img/button_reset.png').convert_alpha(), 0.7)
-		clear_button = Button(775, 450, pygame.image.load('img/button_clear.png').convert_alpha(), 0.7)
-  
-		easy_mode_button = Button(775, 30, pygame.image.load('img/button_easy.png').convert_alpha(), 0.7)
-		medium_mode_button = Button(775, 100, pygame.image.load('img/button_medium.png').convert_alpha(), 0.7)
-		hard_mode_button = Button(775, 170, pygame.image.load('img/button_hard.png').convert_alpha(), 0.7)
-		render_button = Button(775, 240, pygame.image.load('img/button_render.png').convert_alpha(), 0.7)
-		return_mode_button = Button(775, 310, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
-  
-		bfs_button = Button(775, 30, pygame.image.load('img/button_bfs.png').convert_alpha(), 0.7)
-		dfs_button = Button(775, 100, pygame.image.load('img/button_dfs.png').convert_alpha(), 0.7)
-		astar_button = Button(775, 170, pygame.image.load('img/button_a.png').convert_alpha(), 0.7)
-		greedy_button = Button(775, 240, pygame.image.load('img/button_greedy.png').convert_alpha(), 0.7)
-		dijkstra_button = Button(775, 310, pygame.image.load('img/button_dijkstra.png').convert_alpha(), 0.7)
-		ucs_button = Button(775, 380, pygame.image.load('img/button_ucs.png').convert_alpha(), 0.7)
-		ids_button = Button(775, 450, pygame.image.load('img/button_ids.png').convert_alpha(), 0.7)
-		return_button = Button(775, 520, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
-  
+		bfs_button = Button(840, 30, pygame.image.load('img/button_bfs.png').convert_alpha(), 0.7)
+		dfs_button = Button(840, 100, pygame.image.load('img/button_dfs.png').convert_alpha(), 0.7)
+		astar_button = Button(840, 170, pygame.image.load('img/button_a.png').convert_alpha(), 0.7)
+		greedy_button = Button(840, 240, pygame.image.load('img/button_greedy.png').convert_alpha(), 0.7)
+		dijkstra_button = Button(840, 310, pygame.image.load('img/button_dijkstra.png').convert_alpha(), 0.7)
+		ucs_button = Button(840, 380, pygame.image.load('img/button_ucs.png').convert_alpha(), 0.7)
+		#ids_button = Button(775, 450, pygame.image.load('img/button_ids.png').convert_alpha(), 0.7)
+		return_button = Button(840, 450, pygame.image.load('img/button_return.png').convert_alpha(), 0.7)
+
 		row_start, col_start = None, None
 		row_end, col_end = None, None
   
-		font = pygame.font.SysFont("arial", 25)
+		font = pygame.font.SysFont("calibri", 25)
 		visited, candidate, cost = 0,0,0
 		text_visited = font.render(f"Visited: {visited}", True, (0, 0, 0))
 		text_candidate= font.render(f"Candidate: {candidate}", True, (0, 0, 0))
 		text_cost = font.render(f"Cost: {cost}",True,(0,0,0))
-		group = font.render("Group 3", True,(0,0,0))
+		text_algo = font.render(f"Algorithm: {algo}", True, PURPLE)
   
+		title = pygame.font.SysFont("calibri", 35).render("Final term project", True, PURPLE)
+		game = pygame.font.SysFont("calibri", 30).render("Maze game", True, PURPLE)
+		subject = pygame.font.SysFont("calibri", 24).render("Artificial intelligence course", True, (0, 0, 0))
+		group = pygame.font.SysFont("calibri", 24).render("Group 3", True, (0, 0, 0))
+		name1 = pygame.font.SysFont("calibri", 24).render("Vũ Xuân Hoàng", True, (0, 0, 0))
+		name2 = pygame.font.SysFont("calibri", 24).render("Nguyễn Hoàng Hảo", True, (0, 0, 0))
+		name3 = pygame.font.SysFont("calibri", 24).render("Bùi Ngọc Hiệp", True, (0, 0, 0))
+		stars = pygame.font.SysFont("calibri", 24).render("        *************", True, (0, 0, 0))
+		guide = pygame.font.SysFont("calibri", 30).render("Guide", True, PURPLE)
+		click1 = pygame.font.SysFont("calibri", 24).render("- Use left click to make start", True, (0, 0, 0))
+		click2 = pygame.font.SysFont("calibri", 24).render("end and barrier", True, (0, 0, 0))
+		click3 = pygame.font.SysFont("calibri", 24).render("- Use right click to clear spot", True, (0, 0, 0))
+		click4 = pygame.font.SysFont("calibri", 24).render("- Click to Start button to run", True, (0, 0, 0))
+		click5 = pygame.font.SysFont("calibri", 24).render("- Click to mode button to", True, (0, 0, 0))
+		click6 = pygame.font.SysFont("calibri", 24).render("render map", True, (0, 0, 0))
+		click7 = pygame.font.SysFont("calibri", 24).render("- Click to algorithm button to ", True, (0, 0, 0))
+		click8 = pygame.font.SysFont("calibri", 24).render("choose algorithm ", True, (0, 0, 0))
+		functions_button = Button(840, 670, pygame.image.load('img/button_functions.png').convert_alpha(), 0.7)
 		while self.running:
 			self.screen.fill(LIGHTBLUE)
-			clock.draw( 775, 30)
    
-			if not select_algo and not select_mode:
+			if main and not info_clicked and not select_algo and not select_mode:
+				functions_button.draw(self.screen)
+				screen.blit(title, (770, 20))
+				screen.blit(game, (770, 60))
+				screen.blit(subject, (770, 100))
+				screen.blit(group, (770, 130))
+				screen.blit(name1, (770, 160))
+				screen.blit(name2, (770, 190))
+				screen.blit(name3, (770, 220))
+				screen.blit(stars, (770, 260))
+				screen.blit(guide, (770, 300))
+				screen.blit(click1, (770, 340))
+				screen.blit(click2, (770, 380))
+				screen.blit(click3, (770, 420))
+				screen.blit(click4, (770, 460))
+				screen.blit(click5, (770, 500))
+				screen.blit(click6, (770, 540))
+				screen.blit(click7, (770, 580))
+				screen.blit(click8, (770, 620))
+   
+			elif not main and not select_algo and not select_mode and not info_clicked:
+				clock.draw( 840, 10)
 				start_button.draw(self.screen)
 				mode_button.draw(self.screen)
 				algorithm_button.draw(self.screen)
 				reset_button.draw(self.screen)
 				clear_button.draw(self.screen)
+				info_button.draw(self.screen)
 				generate_maze_button.draw(self.screen)
-				screen.blit(text_visited, (775, 520))
-				screen.blit(text_candidate, (775, 570))
-				screen.blit(text_cost, (775, 620))
-				screen.blit(group, (775, 670))
+				screen.blit(text_visited, (840, 590))
+				screen.blit(text_candidate, (840, 630))
+				screen.blit(text_cost, (840, 670))
+				screen.blit(text_algo, (840, 60))
+
 			elif select_mode:
 				easy_mode_button.draw(self.screen)
 				medium_mode_button.draw(self.screen)
@@ -234,7 +276,6 @@ class Main():
 				astar_button.draw(self.screen)
 				greedy_button.draw(self.screen)
 				dijkstra_button.draw(self.screen)
-				ids_button.draw(self.screen)
 				ucs_button.draw(self.screen)
 				return_button.draw(self.screen)
     
@@ -341,14 +382,14 @@ class Main():
 						continue
 
 					if select_algo and not choose_algo:
-						if bfs_button.rect.collidepoint(mouse_pos):					algo = 'bfs'
-						elif dfs_button.rect.collidepoint(mouse_pos):				algo = 'dfs'
-						elif astar_button.rect.collidepoint(mouse_pos):				algo = 'astar'
-						elif greedy_button.rect.collidepoint(mouse_pos):			algo = 'greedy'
-						elif dijkstra_button.rect.collidepoint(mouse_pos):			algo = 'dijkstra'
-						elif ids_button.rect.collidepoint(mouse_pos):				algo = 'ids'
-						elif ucs_button.rect.collidepoint(mouse_pos):				algo = 'ucs'
-      
+						if bfs_button.rect.collidepoint(mouse_pos):					algo = 'BFS'
+						elif dfs_button.rect.collidepoint(mouse_pos):				algo = 'DFS'
+						elif astar_button.rect.collidepoint(mouse_pos):				algo = 'A*'
+						elif greedy_button.rect.collidepoint(mouse_pos):			algo = 'Greedy'
+						elif dijkstra_button.rect.collidepoint(mouse_pos):			algo = 'Dijkstra'
+						#elif ids_button.rect.collidepoint(mouse_pos):				algo = 'ids'
+						elif ucs_button.rect.collidepoint(mouse_pos):				algo = 'UCS'
+						text_algo = font.render(f"Algo: {algo}",True,(0,0,0))
 						select_algo = False
 						algorithm_button.clicked = False
 						continue
@@ -357,6 +398,14 @@ class Main():
 						if easy_mode_button.rect.collidepoint(mouse_pos):		mode = 'easy'
 						elif medium_mode_button.rect.collidepoint(mouse_pos):	mode = 'medium'
 						elif hard_mode_button.rect.collidepoint(mouse_pos):		mode = 'hard'
+						continue
+					
+					if info_button.rect.collidepoint(mouse_pos) and not main:
+						main = True
+						continue
+  
+					if functions_button.rect.collidepoint(mouse_pos):
+						main = False
 						continue
      
 				if event.type == pygame.KEYDOWN:
@@ -423,7 +472,7 @@ class Main():
 
 if __name__ == "__main__":
 	window_size = WINDOW_SIZE
-	screen = (window_size[0] + 150, window_size[1])
+	screen = (window_size[0] + 290, window_size[1])
 	screen = pygame.display.set_mode(screen)
 	pygame.display.set_caption("Maze Game")
 
